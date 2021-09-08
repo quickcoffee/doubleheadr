@@ -6,6 +6,7 @@
 #' @param dat a data.frame.
 #' @param rep_val repeated value as a character class. When your column names repeat, what is the repeated value. (Common cases are "X" for .csv imports or "..." for .xlsx imports).
 #' @param clean_names values are TRUE or FALSE. Should column names be converted to snake_case?
+#' @param delimiter string used a delimiter between the column and sub-column name
 #'
 #' @return a data.frame.
 #'
@@ -14,7 +15,7 @@
 #' library(doubleheadr)
 #' doubleheadr::demo %>%
 #'   clean_headr(., "...")
-clean_headr <- function(dat, rep_val = NULL, clean_names = TRUE){
+clean_headr <- function(dat, rep_val = NULL, clean_names = TRUE, delimiter = " "){
 
   if (!clean_names %in% c(TRUE, FALSE)){
     stop("\"clean_names\" accepts two values: TRUE or FALSE")
@@ -40,7 +41,7 @@ clean_headr <- function(dat, rep_val = NULL, clean_names = TRUE){
   names(sv)[2] <- "value"
   sv$grp <- with(sv, ave(name, FUN = function(dat) cumsum(!startsWith(name, rep_val))))
   sv$new_value <- with(sv, ave(name, grp, FUN = function(dat) head(dat, 1)))
-  sv$new_value <- paste0(sv$new_value, " ", sv$value)
+  sv$new_value <- paste0(sv$new_value, delimiter, sv$value)
   new_names <- as.character(sv$new_value)
   colnames(orig)[which(colnames(orig) %in% sv$name)] <- sv$new_value
   orig <- orig[-c(1),]
